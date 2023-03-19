@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'home_page.dart';
 
@@ -11,6 +12,9 @@ class SighUpPage extends StatefulWidget {
 
 class _SighUpPageState extends State<SighUpPage> {
   var formKey = GlobalKey<FormState>();
+  final auth = FirebaseAuth.instance;
+  late String username;
+  late String password;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,9 +36,12 @@ class _SighUpPageState extends State<SighUpPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    //   const SizedBox(height: 40),
+
                     // TextFormField(
-                    //   onChanged: (value) {},
+                    //   onChanged: (value) {
+                    //     username = value;
+                    //   },
                     //   validator: (value) {
                     //     if (value!.isEmpty) {
                     //       return 'error username';
@@ -57,12 +64,57 @@ class _SighUpPageState extends State<SighUpPage> {
                     //     ),
                     //   ),
                     // ),
+
+                    //     const SizedBox(height: 10),
+
+                    // TextFormField(
+                    //   onChanged: (value) {
+                    //     password = value;
+                    //   },
+                    //   validator: (value) {
+                    //     if (value!.isEmpty) {
+                    //       return 'error password';
+                    //     }
+                    //     return null;
+                    //   },
+                    //   decoration: InputDecoration(
+                    //     prefixIcon: Icon(
+                    //       Icons.person,
+                    //     ),
+                    //     label: Text(
+                    //       'password',
+                    //     ),
+                    //     hintText: 'Enter your password',
+                    //     enabledBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(20.0),
+                    //     ),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(20.0),
+                    //     ),
+                    //   ),
+                    // ),
+
+                    const SizedBox(height: 10),
                     customTextFormField(
                         text: 'username',
                         icon: Icon(
                           Icons.person_add,
                           color: Colors.black,
-                        )),
+                        ),
+                        onChanged: (value) {
+                          username = value;
+                        }),
+
+                    const SizedBox(height: 10),
+                    customTextFormField(
+                        text: 'password',
+                        icon: Icon(
+                          Icons.lock,
+                          color: Colors.black,
+                        ),
+                        onChanged: (value) {
+                          password = value;
+                        }),
 
                     const SizedBox(height: 10),
                     customTextFormField(
@@ -78,14 +130,7 @@ class _SighUpPageState extends State<SighUpPage> {
                           Icons.equalizer,
                           color: Colors.black,
                         )),
-                    const SizedBox(height: 10),
-                    customTextFormField(
-                        text: 'password',
-                        icon: Icon(
-                          Icons.lock,
-                          color: Colors.black,
-                        )),
-                    const SizedBox(height: 10),
+
                     const SizedBox(height: 10),
                     customTextFormField(
                         text: 'Favorite',
@@ -93,6 +138,7 @@ class _SighUpPageState extends State<SighUpPage> {
                           Icons.border_inner,
                           color: Colors.black,
                         )),
+
                     const SizedBox(height: 10),
                     ElevatedButton(
                         style: ButtonStyle(
@@ -106,8 +152,18 @@ class _SighUpPageState extends State<SighUpPage> {
                           backgroundColor:
                               MaterialStateProperty.all(Colors.black),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (formKey.currentState!.validate()) {}
+                          try {
+                            var user =
+                                await auth.createUserWithEmailAndPassword(
+                                    email: username, password: password);
+                            if (user != null) {
+                              Navigator.pushNamed(context, HomePage.id);
+                            }
+                          } catch (e) {
+                            print('-----> $e');
+                          }
                         },
                         child: Text('Sign Up')),
                     const SizedBox(height: 10),
@@ -149,9 +205,10 @@ class _SighUpPageState extends State<SighUpPage> {
   }
 }
 
-Widget customTextFormField({String? text, Icon? icon}) {
+Widget customTextFormField(
+    {String? text, Icon? icon, final Function(String val)? onChanged}) {
   return TextFormField(
-    onChanged: (value) {},
+    onChanged: onChanged,
     validator: (value) {
       if (value!.isEmpty) {
         return 'error $text';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../user_model.dart';
 import 'home_page.dart';
 import 'sighup_page.dart';
 
@@ -56,72 +57,82 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 40),
-                    TextFormField(
-                      onChanged: (value) {
-                        username = value;
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'error username';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.person,
-                        ),
-                        label: Text(
-                          'username',
-                        ),
-                        hintText: 'Enter your username',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                      ),
-                    ),
-                    // customTextFormField(
-                    //     text: 'username',
-                    //     icon: Icon(
+                    // TextFormField(
+                    //   onChanged: (value) {
+                    //     username = value;
+                    //   },
+                    //   validator: (value) {
+                    //     if (value!.isEmpty) {
+                    //       return 'error username';
+                    //     }
+                    //     return null;
+                    //   },
+                    //   decoration: InputDecoration(
+                    //     prefixIcon: Icon(
                     //       Icons.person,
-                    //       color: Colors.black,
-                    //     )),
-                    // const SizedBox(height: 10),
-                    // customTextFormField(
-                    //     text: 'password',
-                    //     icon: Icon(
-                    //       Icons.lock,
-                    //       color: Colors.black,
-                    //     )),
+                    //     ),
+                    //     label: Text(
+                    //       'username',
+                    //     ),
+                    //     hintText: 'Enter your username',
+                    //     enabledBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(20.0),
+                    //     ),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(20.0),
+                    //     ),
+                    //   ),
+                    // ),
+
+                    customTextFormField(
+                        text: 'username',
+                        icon: Icon(
+                          Icons.person,
+                          color: Colors.black,
+                        ),
+                        onChanged: (value) {
+                          username = value;
+                          print(username);
+                        }),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      onChanged: (value) {
-                        password = value;
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'error password';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
+                    customTextFormField(
+                        text: 'password',
+                        icon: Icon(
                           Icons.lock,
+                          color: Colors.black,
                         ),
-                        label: Text(
-                          'password',
-                        ),
-                        hintText: 'Enter your password',
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50.0),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50.0),
-                        ),
-                      ),
-                    ),
+                        onChanged: (value) {
+                          password = value;
+                          print(' ==> $password');
+                        }),
+
+                    const SizedBox(height: 10),
+                    // TextFormField(
+                    //   onChanged: (value) {
+                    //     password = value;
+                    //   },
+                    //   validator: (value) {
+                    //     if (value!.isEmpty) {
+                    //       return 'error password';
+                    //     }
+                    //     return null;
+                    //   },
+                    //   decoration: InputDecoration(
+                    //     prefixIcon: Icon(
+                    //       Icons.lock,
+                    //     ),
+                    //     label: Text(
+                    //       'password',
+                    //     ),
+                    //     hintText: 'Enter your password',
+                    //     enabledBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(50.0),
+                    //     ),
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(50.0),
+                    //     ),
+                    //   ),
+                    // ),
 
                     const SizedBox(height: 10),
                     ElevatedButton(
@@ -140,9 +151,15 @@ class _LoginPageState extends State<LoginPage> {
                           if (formKey.currentState!.validate()) {}
 
                           try {
-                            var user =
-                                await auth.createUserWithEmailAndPassword(
-                                    email: username, password: password);
+                            var user = await auth.signInWithEmailAndPassword(
+                                email: username, password: password);
+
+                            Navigator.pushNamed(
+                              context,
+                              HomePage.id,
+                              arguments: UserModel(
+                                  username: username, password: password),
+                            );
                           } catch (e) {
                             print('-----> $e');
                           }
@@ -152,9 +169,13 @@ class _LoginPageState extends State<LoginPage> {
 
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, HomePage.id);
+                        Navigator.pushNamed(
+                          context,
+                          HomePage.id,
+                          arguments: UserModel(username: '', password: ''),
+                        );
                       },
-                      child: Text('Next'),
+                      child: Text('Skip'),
                     ),
 
                     const SizedBox(height: 10),
@@ -187,9 +208,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-Widget customTextFormField({String? text, Icon? icon}) {
+Widget customTextFormField(
+    {String? text, Icon? icon, final Function(String val)? onChanged}) {
   return TextFormField(
-    onChanged: (value) {},
+    onChanged: onChanged,
     validator: (value) {
       if (value!.isEmpty) {
         return 'error $text';
