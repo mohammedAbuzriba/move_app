@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
+import 'pages/on_boarding_page.dart';
 import 'pages/sighup_page.dart';
 
-void main() async {
+Future<void> main() async {
   runApp(const MainApp());
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    name: 'appWithFirebase',
+    options: FirebaseOptions(
+        apiKey: 'AIzaSyAn380qtiqszftsIob9zQuJAczCnCYHdHw',
+        appId: '1:1084716718588:android:6cbd91b9ec7f0f97d3fa79',
+        messagingSenderId: '1084716718588',
+        projectId: 'appwithfirepase'),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -23,8 +31,9 @@ class MainApp extends StatelessWidget {
         HomePage.id: (context) => HomePage(),
         LoginPage.id: (context) => LoginPage(),
         SighUpPage.id: (context) => SighUpPage(),
+        OnBoardingPage.id: (context) => OnBoardingPage(),
       },
-      initialRoute: LoginPage.id,
+      initialRoute: OnBoardingPage.id,
     );
   }
 }
